@@ -1,0 +1,54 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.30'
+}
+
+
+group = 'com.github'
+version = '1.0-SNAPSHOT'
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'spigotmc-repo'
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    maven {
+        name = 'sonatype'
+        url = 'https://oss.sonatype.org/content/groups/public/'
+    }
+}
+
+dependencies {
+    compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+
+    //添加协程库，https://github.com/Kotlin/kotlinx.coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2"
+    //添加反射库
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.4.20"
+    //gson解析器
+    implementation 'com.google.code.gson:gson:2.8.6'
+    //导入sqlite依赖，https://github.com/xerial/sqlite-jdbc
+    implementation 'org.xerial:sqlite-jdbc:3.34.0'
+    //添加TelegramBots依赖，https://github.com/rubenlagus/TelegramBots
+    implementation "org.telegram:telegrambots:5.0.1"
+    //emoji处理包，https://github.com/vdurmont/emoji-java
+    implementation 'com.vdurmont:emoji-java:5.1.1'
+
+}
+
+processResources {
+    from(sourceSets.main.resources.srcDirs) {
+        filter ReplaceTokens, tokens: [version: version]
+    }
+}
+compileKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ["-Xinline-classes"]
+    }
+}
