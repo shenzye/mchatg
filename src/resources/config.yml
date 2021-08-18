@@ -1,0 +1,50 @@
+plugin-enable: false
+global:
+  bot:
+    token:
+    username:
+    group-id:
+  proxy:
+    enable: false
+    # type: http/socks4/socks5
+    type: socks5
+    host: 127.0.0.1
+    port: 1080
+
+account:
+  enable: true
+  invitecode:
+  limit: 0
+  allow-tourist: false
+  #多个admin用|分割
+  admins:
+
+web:
+  socket: -1
+  inner: true
+
+command:
+  enable: true
+  list: true
+  ping: true
+  kickme: true
+  execute: true
+
+
+message:
+  enable: true
+  server-up: false
+  forward-chat:
+    enable: true
+    #TODO:conversion-name:telegram2minecraft
+    conversion-name: true
+  onJoin:
+    enable: true
+    interval: 2
+  onQuit:
+    enable: true
+    interval: 2
+  onDeath:
+    enable: true
+    interval: 1
+

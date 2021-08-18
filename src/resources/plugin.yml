@@ -1,0 +1,4 @@
+name: mchatg
+version: 1.0
+main: com.github.mchatg.MchatgSpigot
+api-version: 1.16
