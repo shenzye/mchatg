@@ -1,0 +1,31 @@
+{
+  "pluginEnable": false,
+  "bot": {
+    "token": "",
+    "username": "",
+    "groupId": 0
+  },
+  "proxy": {
+    "enable": false,
+    "type": "socks5",
+    "host": "localhost",
+    "port": "1080"
+  },
+  "command": {
+    "enable": true,
+    "list": true,
+    "ping": true,
+    "execute": true,
+    "admins": []
+  },
+  "message": {
+    "serverUp": false,
+    "forwardChatEnable": true,
+    "onJoinEnable": true,
+    "onJoinInterval": 2,
+    "onQuitEnable": true,
+    "onQuitInterval": 2,
+    "onDeathEnable": true,
+    "onDeathInterval": 2
+  }
+}
