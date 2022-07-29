@@ -53,7 +53,7 @@ class Execute(context: Context) : TelegramCommand, Context by context {
                         "$command " + args[i]
                     }
                 }
-                logger.info(update.message.from.let { it.userName?:it.id.toString() }   + " 执行命令：$command")
+                logger.info(update.message.from.let { it.userName?:it.id.toString() }   + " try to execute : $command")
                 val session = TelegramMessageSession(
                     telegramBot,
                     300,
