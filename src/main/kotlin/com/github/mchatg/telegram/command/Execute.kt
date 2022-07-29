@@ -4,6 +4,7 @@ import com.github.mchatg.Context
 import com.github.mchatg.telegram.TelegramBot.Companion.replyOnGroup
 import com.github.mchatg.telegram.TelegramCommand
 import com.github.mchatg.telegram.TelegramMessageSession
+import com.github.mchatg.until.styleFilter
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.Update
@@ -62,7 +63,7 @@ class Execute(context: Context) : TelegramCommand, Context by context {
                 serverApis.dispatchCommand(
                     command
                 ) {
-                    session.send(it)
+                    session.send(styleFilter(it))
                 }
                 telegramBot.send(
                     SendMessage(

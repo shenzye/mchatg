@@ -16,7 +16,7 @@ fun emojiFiller(input: String): String =
     }
 
 
-fun styleFiller(input: String): String = input.replace("§.".toRegex(), "")
+fun styleFilter(input: String): String = input.replace("§.".toRegex(), "")
 
 fun getDisplayNameWithUrl(user: User) = user.run {
     "[$firstName" +
