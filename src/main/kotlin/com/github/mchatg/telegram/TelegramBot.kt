@@ -81,7 +81,16 @@ class TelegramBot(private val context: Context) : Context by context {
             toSendMutex.unlock()
             sending.forEach {
                 processMessages(it).forEach {
-                    bot?.execute(it)
+                    var retry = 0
+                    while (bot != null && retry < 3) {
+                        try {
+                            bot?.execute(it)
+                        } catch (e: Exception) {
+                            retry += 1
+                        }
+                    }
+
+
                 }
             }
             sendingMutex.unlock()
@@ -182,7 +191,7 @@ class TelegramBot(private val context: Context) : Context by context {
 
             }
 
-            if (messageBuffer.isNotBlank()){
+            if (messageBuffer.isNotBlank()) {
                 processedMessages.add(
                     cloneSendMessage(sendMessage, messageBuffer.toString())
                 )
