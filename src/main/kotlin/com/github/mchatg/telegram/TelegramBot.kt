@@ -85,6 +85,7 @@ class TelegramBot(private val context: Context) : Context by context {
                     while (bot != null && retry < 3) {
                         try {
                             bot?.execute(it)
+                            break
                         } catch (e: Exception) {
                             retry += 1
                         }
@@ -210,15 +211,12 @@ class TelegramBot(private val context: Context) : Context by context {
 
     private val timeOut: Int = 30//s
     fun onReceived(update: Update) {
-
-        if (Date().after(Date((update.message.date + timeOut) * 1000L))) {
-            logger.info("have message time out")
-            return
-        }
-
         try {
             when {
                 update.message == null -> return
+                Date().after(Date((update.message.date + timeOut) * 1000L)) -> {
+                    logger.info("have message time out")
+                }
                 !update.message.isCommand -> messagesHandler.handle(update)
                 config.command.enable -> commandHandler.handle(update)
             }
