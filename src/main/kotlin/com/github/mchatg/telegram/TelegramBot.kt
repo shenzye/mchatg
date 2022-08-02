@@ -1,6 +1,12 @@
 package com.github.mchatg.telegram
 
 import com.github.mchatg.Context
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.selects.select
 import org.telegram.telegrambots.bots.DefaultBotOptions
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.TelegramBotsApi
@@ -10,39 +16,68 @@ import org.telegram.telegrambots.meta.generics.BotSession
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
 import java.util.*
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.locks.ReentrantLock
 
 class TelegramBot(private val context: Context) : Context by context {
 
     private var bot: Bot? = null
     private var session: BotSession? = null
     val commandHandler by lazy { CommandHandler.getInstance(context) }
-
     val messagesHandler by lazy { MessagesHandler(context) }
+    private val chan: Channel<SendMessage> = Channel(64)
 
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun stop() {
-        session?.stop()
+
         try {
+            chan.close()
+            while (!chan.isClosedForReceive) {
+                Thread.sleep(10)
+            }
+            session?.stop()
             bot?.onClosing()
+
         } catch (e: Exception) {
             logger.warning("Close bot failed .")
             logger.warning(e.toString())
         }
-        try {
-            this.bot?.clearWebhook()
-        } catch (e: Exception) {
-            logger.fine("Clear webhook failed but it is not matter .")
-        }
     }
 
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun init() {
         try {
             val b = Bot()
             val tgBotApi = TelegramBotsApi(DefaultBotSession::class.java)
             session = tgBotApi.registerBot(b)
             bot = b
+
+            CompletableFuture.runAsync {
+                runBlocking {
+                    while (!chan.isClosedForReceive) {
+                        select {
+                            chan.onReceiveCatching {
+                                val message: SendMessage? = it.getOrNull()
+                                if (message != null) {
+                                    processMessages(message).forEach {
+                                        var retry = 0
+                                        while (bot != null && retry < 3) {
+                                            try {
+                                                bot?.execute(it)
+                                                break
+                                            } catch (e: Exception) {
+                                                retry += 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+            }
         } catch (e: Exception) {
             logger.severe(e.toString())
         }
@@ -50,53 +85,13 @@ class TelegramBot(private val context: Context) : Context by context {
     }
 
 
-    val token by lazy { config.bot.token }
+    private val token by lazy { config.bot.token }
     val username by lazy { config.bot.username }
 
-
-    private val toSendMutex: ReentrantLock = ReentrantLock()
-    var toSend: ArrayList<SendMessage> = arrayListOf()
-    private val sendingMutex: ReentrantLock = ReentrantLock()
-
     fun send(message: SendMessage) {
-
-        toSendMutex.lock()
-        toSend.add(message)
-        toSendMutex.unlock()
-        sending()
-    }
-
-    private fun sending() {
-        CompletableFuture.runAsync {
-            sendingMutex.lock()
-            toSendMutex.lock()
-            if (toSend.isEmpty()) {
-                toSendMutex.unlock()
-                sendingMutex.unlock()
-                return@runAsync
-            }
-
-            val sending = toSend
-            toSend = arrayListOf()
-            toSendMutex.unlock()
-            sending.forEach {
-                processMessages(it).forEach {
-                    var retry = 0
-                    while (bot != null && retry < 3) {
-                        try {
-                            bot?.execute(it)
-                            break
-                        } catch (e: Exception) {
-                            retry += 1
-                        }
-                    }
-
-
-                }
-            }
-            sendingMutex.unlock()
+        if (chan.trySend(message).isFailure) {
+            logger.info("send message fail , it is too quickly")
         }
-
     }
 
 

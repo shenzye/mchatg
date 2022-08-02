@@ -25,10 +25,10 @@ dependencies {
     implementation("org.telegram:telegrambots:6.1.0")
     //emoji处理包，https://github.com/vdurmont/emoji-java
     implementation("com.vdurmont:emoji-java:5.1.1")
+    //添加协程库，https://github.com/Kotlin/kotlinx.coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     //kotlin基本库
     //implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    //添加协程库，https://github.com/Kotlin/kotlinx.coroutines
-    //implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     //导入sqlite依赖，https://github.com/xerial/sqlite-jdbc
     //implementation("org.xerial:sqlite-jdbc:3.36.0.3")
     //orm框架exposed，https://github.com/JetBrains/Exposed
